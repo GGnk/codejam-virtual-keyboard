@@ -225,7 +225,8 @@ const CreateKeyboard = (lang, shift) => {
   localStorage.setItem('KeysLang', keysLang);
   document.querySelector('.keyboard').innerHTML = '';
   let key;
-  for (let i = 0; i < lang.length; i += 1) {
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < lang.length; i++) {
     key = document.createElement('div');
     key.classList = 'key';
     key.id = codes[i];
@@ -256,66 +257,79 @@ const inputText = (ev) => {
   caretEnd = textarea.selectionEnd;
   window.event.returnValue = false;
   textarea.focus();
-  if (ev === 'CapsLock') {
-    if (!capsLock) {
+  // eslint-disable-next-line default-case
+  switch (ev) {
+    case 'CapsLock':
+      if (!capsLock) {
+        ChangeCase(keysLang, 1);
+        document.querySelector('#CapsLock').classList.add('key-pressed');
+        capsLock = true;
+      } else {
+        document.querySelector('#CapsLock').classList.remove('key-pressed');
+        ChangeCase(keysLang, 0);
+        capsLock = false;
+      }
+      break;
+    case 'Backspace':
+      if (caretStart !== caretEnd) {
+        textarea.value = textarea.value.slice(0, caretStart) + textarea.value.slice(caretEnd);
+        textarea.selectionStart = caretStart;
+        textarea.selectionEnd = caretStart;
+      } else {
+        textarea.value = textarea.value.slice(0, caretStart - 1) + textarea.value.slice(caretEnd);
+        textarea.selectionStart = caretStart - 1;
+        textarea.selectionEnd = caretStart - 1;
+      }
+      break;
+    case 'Delete':
+      if (caretStart !== caretEnd) {
+        textarea.value = textarea.value.slice(0, caretStart) + textarea.value.slice(caretEnd);
+        textarea.selectionStart = caretStart;
+        textarea.selectionEnd = caretStart;
+      } else {
+        textarea.value = textarea.value.slice(0, caretStart) + textarea.value.slice(caretEnd + 1);
+        textarea.selectionStart = caretStart;
+        textarea.selectionEnd = caretStart;
+      }
+      break;
+    case 'ArrowLeft':
+      if (caretStart !== 0) {
+        textarea.selectionStart = caretStart - 1;
+        textarea.selectionEnd = caretStart - 1;
+      }
+      break;
+    case 'ArrowRight':
+      textarea.selectionStart = caretStart + 1;
+      textarea.selectionEnd = caretStart + 1;
+      break;
+    case 'Enter':
+      textarea.value = `${textarea.value.slice(0, caretStart)}\n${textarea.value.slice(caretStart)}`;
+      textarea.selectionStart = caretStart + 1;
+      textarea.selectionEnd = caretStart + 1;
+      break;
+    case 'Space':
+      textarea.value = `${textarea.value.slice(0, caretStart)} ${textarea.value.slice(caretStart)}`;
+      textarea.selectionStart = caretStart + 1;
+      textarea.selectionEnd = caretStart + 1;
+      break;
+    case 'Tab':
+      textarea.value = `${textarea.value.slice(0, caretStart)}    ${textarea.value.slice(caretStart)}`;
+      textarea.selectionStart = caretStart + 4;
+      textarea.selectionEnd = caretStart + 4;
+      break;
+    case 'ShiftLeft':
       ChangeCase(keysLang, 1);
-      document.querySelector('#CapsLock').classList.add('key-pressed');
-      capsLock = true;
-    } else {
-      document.querySelector('#CapsLock').classList.remove('key-pressed');
-      ChangeCase(keysLang, 0);
-      capsLock = false;
-    }
-  } else if (ev === 'Backspace') {
-    if (caretStart !== caretEnd) {
-      textarea.value = textarea.value.slice(0, caretStart) + textarea.value.slice(caretEnd);
-      textarea.selectionStart = caretStart;
-      textarea.selectionEnd = caretStart;
-    } else {
-      textarea.value = textarea.value.slice(0, caretStart - 1) + textarea.value.slice(caretEnd);
-      textarea.selectionStart = caretStart - 1;
-      textarea.selectionEnd = caretStart - 1;
-    }
-  } else if (ev === 'Delete') {
-    if (caretStart !== caretEnd) {
-      textarea.value = textarea.value.slice(0, caretStart) + textarea.value.slice(caretEnd);
-      textarea.selectionStart = caretStart;
-      textarea.selectionEnd = caretStart;
-    } else {
-      textarea.value = textarea.value.slice(0, caretStart) + textarea.value.slice(caretEnd + 1);
-      textarea.selectionStart = caretStart;
-      textarea.selectionEnd = caretStart;
-    }
-  } else if (ev === 'ArrowLeft') {
-    if (caretStart !== 0) {
-      textarea.selectionStart = caretStart - 1;
-      textarea.selectionEnd = caretStart - 1;
-    }
-  } else if (ev === 'ArrowRight') {
-    textarea.selectionStart = caretStart + 1;
-    textarea.selectionEnd = caretStart + 1;
-  } else if (ev === 'Enter') {
-    textarea.value = `${textarea.value.slice(0, caretStart)}\n${textarea.value.slice(caretStart)}`;
-    textarea.selectionStart = caretStart + 1;
-    textarea.selectionEnd = caretStart + 1;
-  } else if (ev === 'Space') {
-    textarea.value = `${textarea.value.slice(0, caretStart)} ${textarea.value.slice(caretStart)}`;
-    textarea.selectionStart = caretStart + 1;
-    textarea.selectionEnd = caretStart + 1;
-  } else if (ev === 'Tab') {
-    textarea.value = `${textarea.value.slice(0, caretStart)}    ${textarea.value.slice(caretStart)}`;
-    textarea.selectionStart = caretStart + 4;
-    textarea.selectionEnd = caretStart + 4;
-  } else if (ev === 'ShiftLeft') {
-    ChangeCase(keysLang, 1);
-    document.querySelector('#ShiftLeft').classList.add('key-pressed');
-  } else if (ev === 'ShiftRight') {
-    ChangeCase(keysLang, 1);
-    document.querySelector('#ShiftRight').classList.add('key-pressed');
-  } else if (ev !== 'Tab' && ev !== 'Delete' && ev !== 'ControlLeft' && ev !== 'MetaLeft' && ev !== 'AltLeft' && ev !== 'AltRight' && ev !== 'ControlRight') {
-    textarea.value = textarea.value.slice(0, caretStart) + document.querySelector(`#${ev}`).innerText + textarea.value.slice(caretStart);
-    textarea.selectionStart = caretStart + 1;
-    textarea.selectionEnd = caretStart + 1;
+      document.querySelector('#ShiftLeft').classList.add('key-pressed');
+      break;
+    case 'ShiftRight':
+      ChangeCase(keysLang, 1);
+      document.querySelector('#ShiftRight').classList.add('key-pressed');
+      break;
+    case 'Tab' && 'Delete' && 'ControlLeft' && 'MetaLeft' && 'AltLeft' && 'AltRight' && 'ControlRight':
+      textarea.value = textarea.value.slice(0, caretStart) + document.querySelector(`#${ev}`).innerText + textarea.value.slice(caretStart);
+      textarea.selectionStart = caretStart + 1;
+      textarea.selectionEnd = caretStart + 1;
+      break;
   }
 };
 
